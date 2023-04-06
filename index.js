@@ -52,11 +52,20 @@ app.get("/blogs", async(req, res)=>{
 })
     app.get("/blogs/:id", async (req, res) => {
       const blogId = req.params.id;
-      const query = { _id: ObjectId(blogId)};
+      const query = { _id: new ObjectId(blogId)};
       const getblog = await BlogList.findOne(query);
       console.log("getting single Blogs", getblog);
       res.send(getblog);
     });
+
+
+app.get("/products/:id", async(req, res)=>{
+  const productId= req.params.id;
+  const query = {_id: new ObjectId(productId)};
+  const getSingleProduct= await ProductList.findOne(query);
+  console.log("getting a single product", getSingleProduct);
+  res.send(getSingleProduct);
+})
     // working on appointments
     // app.post("/appoints", async (req, res) => {
     //   const order = req.body;
