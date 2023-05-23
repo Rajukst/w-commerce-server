@@ -20,18 +20,38 @@ async function run() {
     await client.connect();
     const database = client.db("E-Commerce_database");
     const ProductList = database.collection("EcommerceProduct");
-    const BlogList= database.collection("Bloging")
-    // const UsersTestCollection = database.collection("Medical-Test");
-    // const userReview = database.collection("Reviews");
-    // const AppointBooking = database.collection("Appoints");
-    // const userCollection= database.collection('users')
-    // creating add doctors bio
+    const BlogList= database.collection("Bloging");
+    const AllOrders= database.collection("User-Orders");
+    const Comments= database.collection("All-Comments");
+    const Sizes = database.collection("Sizes");
+    const Catagories= database.collection("Catagory-List")
+    const CityApi= database.collection("All-City");
+    const Orders= database.collection("all-Orders");
+    app.post("/add-order", async (req, res) => {
+      const add = req.body;
+      const orders = await Orders.insertOne(add);
+      console.log("getting a Product", orders);
+      res.json(orders);
+      console.log(orders);
+    });
     app.post("/add-product", async (req, res) => {
       const add = req.body;
       const products = await ProductList.insertOne(add);
       console.log("getting a Product", products);
       res.json(products);
       console.log(products);
+    });
+    app.get("/cityApi", async (req, res) => {
+      const cursor = CityApi.find({});
+      const getApi = await cursor.toArray();
+      res.send(getApi);
+      console.log(getApi);
+    });
+    app.get("/orders", async (req, res) => {
+      const cursor = Orders.find({});
+      const getOrders = await cursor.toArray();
+      res.send(getOrders);
+      console.log(getOrders);
     });
     app.get("/products", async (req, res) => {
       const cursor = ProductList.find({});
@@ -66,32 +86,65 @@ app.get("/products/:id", async(req, res)=>{
   console.log("getting a single product", getSingleProduct);
   res.send(getSingleProduct);
 })
-    // working on appointments
-    // app.post("/appoints", async (req, res) => {
-    //   const order = req.body;
-    //   const confirmAppoints = await AppointBooking.insertOne(order);
-    //   res.json(confirmAppoints);
-    // });
 
-    // app.get("/my-appoints", async (req, res) => {
-    //   const email = req.query.email;
-    //   const query = { email: email };
-    //   console.log(query);
-    //   const cursor = AppointBooking.find(query);
-    //   const getBooking = await cursor.toArray();
-    //   res.send(getBooking);
-    //   console.log(getBooking);
-    // });
+    app.get("/my-orders", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      console.log(query);
+      const cursor = AllOrders.find(query);
+      const getOrders = await cursor.toArray();
+      res.send(getOrders);
+      console.log(getOrders);
+    });
+
     // delete product from manage products
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await ProductList.deleteOne(query);
+      console.log("deleting product", result);
+      res.json(result);
+    });
+// comment section
+app.post("/add-comment", async(req, res)=>{
+  const add = req.body;
+  const comments = await Comments.insertOne(add);
+  console.log("getting a Comment", comments);
+  res.json(comments,);
+  console.log(comments);
+});
+app.get("/comments", async(req, res)=>{
+  const cursor = Comments.find({});
+  const getComments = await cursor.toArray();
+  res.send(getComments);
+  console.log(getComments);
+})
+    // working on appointments
+    app.post("/catagory", async (req, res) => {
+      const catagories = req.body;
+      const getCatagory = await Catagories.insertOne(catagories);
+      res.json(getCatagory);
+    });   
+    app.get("/allCatagory", async(req, res)=>{
+      const cursor = Catagories.find({});
+      const getCatagories = await cursor.toArray();
+      res.send(getCatagories);
+      console.log(getCatagories); 
+    })
+    app.post("/add-size", async (req, res) => {
+      const size = req.body;
+      const getSize = await Sizes.insertOne(size);
+      res.json(getSize);
+    });   
+    app.get("/getSize", async(req, res)=>{
+      const cursor = Sizes.find({});
+      const showSize = await cursor.toArray();
+      res.send(showSize);
+      console.log(showSize); 
+    })
 
-    // app.delete("/delete/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: ObjectId(id) };
-    //   const result = await DoctorsList.deleteOne(query);
-    //   console.log("deleting product", result);
-    //   res.json(result);
-    // });
-    // creating user Review
+
+// creating user Review
 
     // app.post("/get-review", async (req, res) => {
     //   const add = req.body;
