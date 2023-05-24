@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient } = require("mongodb");
+const jwt= require("jsonwebtoken");
 const app = express();
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -18,22 +19,19 @@ console.log(uri);
 async function run() {
   try {
     await client.connect();
+    // declaring the database collection
     const database = client.db("E-Commerce_database");
     const ProductList = database.collection("EcommerceProduct");
     const BlogList= database.collection("Bloging");
-    const AllOrders= database.collection("User-Orders");
     const Comments= database.collection("All-Comments");
     const Sizes = database.collection("Sizes");
     const Catagories= database.collection("Catagory-List")
     const CityApi= database.collection("All-City");
     const Orders= database.collection("all-Orders");
-    app.post("/add-order", async (req, res) => {
-      const add = req.body;
-      const orders = await Orders.insertOne(add);
-      console.log("getting a Product", orders);
-      res.json(orders);
-      console.log(orders);
-    });
+    const Users= database.collection("Users");
+
+    // --------------Products API------------------
+
     app.post("/add-product", async (req, res) => {
       const add = req.body;
       const products = await ProductList.insertOne(add);
@@ -41,24 +39,58 @@ async function run() {
       res.json(products);
       console.log(products);
     });
-    app.get("/cityApi", async (req, res) => {
-      const cursor = CityApi.find({});
-      const getApi = await cursor.toArray();
-      res.send(getApi);
-      console.log(getApi);
-    });
-    app.get("/orders", async (req, res) => {
-      const cursor = Orders.find({});
-      const getOrders = await cursor.toArray();
-      res.send(getOrders);
-      console.log(getOrders);
-    });
     app.get("/products", async (req, res) => {
       const cursor = ProductList.find({});
       const getProductList = await cursor.toArray();
       res.send(getProductList);
       console.log(getProductList);
     });
+    app.get("/products/:id", async(req, res)=>{
+      const productId= req.params.id;
+      const query = {_id: new ObjectId(productId)};
+      const getSingleProduct= await ProductList.findOne(query);
+      console.log("getting a single product", getSingleProduct);
+      res.send(getSingleProduct);
+    })
+   // **************Product API Finished*************************
+
+
+    // --------------City API------------------
+    app.get("/cityApi", async (req, res) => {
+      const cursor = CityApi.find({});
+      const getApi = await cursor.toArray();
+      res.send(getApi);
+      console.log(getApi);
+    });
+    // --------------City API finish------------------
+
+
+
+    // --------------Order API------------------
+    app.post("/add-order", async (req, res) => {
+      const add = req.body;
+      const orders = await Orders.insertOne(add);
+      console.log("getting a Product", orders);
+      res.json(orders);
+      console.log(orders);
+    });
+
+    app.get("/orders", async (req, res) => {
+      const email = req.body.email;
+      let query= {};
+      if(email){
+        query={email:email}
+      }
+      const cursor = Orders.find(query);
+      const getOrders = await cursor.toArray();
+      res.send(getOrders);
+      console.log(getOrders);
+    });
+
+
+// --------------Order API finish------------------
+
+// --------------Blog API------------------
 app.post("/add-blog", async(req, res)=>{
   const addBlog= req.body;
   const blogs= await BlogList.insertOne(addBlog);
@@ -78,24 +110,6 @@ app.get("/blogs", async(req, res)=>{
       res.send(getblog);
     });
 
-
-app.get("/products/:id", async(req, res)=>{
-  const productId= req.params.id;
-  const query = {_id: new ObjectId(productId)};
-  const getSingleProduct= await ProductList.findOne(query);
-  console.log("getting a single product", getSingleProduct);
-  res.send(getSingleProduct);
-})
-
-    app.get("/my-orders", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      console.log(query);
-      const cursor = AllOrders.find(query);
-      const getOrders = await cursor.toArray();
-      res.send(getOrders);
-      console.log(getOrders);
-    });
 
     // delete product from manage products
     app.delete("/products/:id", async (req, res) => {
@@ -119,7 +133,7 @@ app.get("/comments", async(req, res)=>{
   res.send(getComments);
   console.log(getComments);
 })
-    // working on appointments
+    // working on admin panel catagories and other categories
     app.post("/catagory", async (req, res) => {
       const catagories = req.body;
       const getCatagory = await Catagories.insertOne(catagories);
@@ -142,93 +156,7 @@ app.get("/comments", async(req, res)=>{
       res.send(showSize);
       console.log(showSize); 
     })
-
-
-// creating user Review
-
-    // app.post("/get-review", async (req, res) => {
-    //   const add = req.body;
-    //   const doctorsReview = await userReview.insertOne(add);
-    //   console.log("getting a Doctor", doctorsReview);
-    //   res.json(doctorsReview);
-    //   console.log(doctorsReview);
-    // });
-
-
-    // app.get("/my-review", async (req, res) => {
-    //   const cursor = userReview.find({});
-    //   const getDoctorReview = await cursor.toArray();
-    //   res.send(getDoctorReview);
-    //   console.log(getDoctorReview);
-    // });
-
-    // adding medical test
-    // app.post("/add-test", async (req, res) => {
-    //   const add = req.body;
-    //   const getMedicalTest = await UsersTestCollection.insertOne(add);
-    //   console.log("getting a Doctor", getMedicalTest);
-    //   res.json(getMedicalTest);
-    //   console.log(getMedicalTest);
-    // });
-
-    // app.get("/all-test", async (req, res) => {
-    //   const cursor = UsersTestCollection.find({});
-    //   const getDoctor = await cursor.toArray();
-    //   res.send(getDoctor);
-    //   console.log(getDoctor);
-    // });
-
-
-    // app.get("/lab-test/:serviceId", async (req, res) => {
-    //   const docId = req.params.serviceId;
-    //   const query = { _id: ObjectId(docId) };
-    //   const getLabTest = await UsersTestCollection.findOne(query);
-    //   console.log("getting test", getLabTest);
-    //   res.send(getLabTest);
-    // });
-
-
-    // app.post('/users', async(req, res)=>{
-    //   const user= req.body;
-    //   const getUser= await userCollection.insertOne(user)
-    //   res.json(getUser)
-    //   console.log(getUser)
-    // })
-
-    // for google sign in if user registred or not. 
-    // (jodi user first time google sign in kore tahole database e add hobe..
-    //    ar jodi same user abar login kore tahole database e add hobe na)
-
-    // app.put('/users', async(req, res)=>{
-    //   const user= req.body;
-    //   const filter= {email:user.email};
-    //   const options = {upsert: true};
-    //   const updateDoc= {$set:user}
-    //   const result= await userCollection.updateOne(filter, updateDoc, options);
-    //   res.json(result)
-    // })
-
-    // app.put('/users/admin', async(req, res)=>{
-    //   const user= req.body;
-    //   console.log(user)
-    //   const filter={email: user.email};
-    //   const updateDoc= {$set:{role:'admin'}}
-    //   const result= await userCollection.updateOne(filter, updateDoc);
-    //   res.json(result)
-    // })
-
-    //verifying user is admin or just user
-    // app.get("/users/:email", async(req, res)=>{
-    //   const email= req.params.email;
-    //   const query= {email:email};
-    //   const user= await userCollection.findOne(query);
-    //   let isAdmin= false
-    //   if(user?.role==='admin'){
-    //     isAdmin= true
-    //   }
-    //   res.json({admin: isAdmin})
-   
-    // });
+// finish the work of admin panel catagories and categories
 
   } finally {
     // client.close()
