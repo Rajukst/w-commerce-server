@@ -28,7 +28,7 @@ async function run() {
     const Catagories= database.collection("Catagory-List")
     const CityApi= database.collection("All-City");
     const Orders= database.collection("all-Orders");
-    const Users= database.collection("Users");
+    const Colors= database.collection("Colors");
 
     // --------------Products API------------------
 
@@ -156,6 +156,20 @@ app.get("/comments", async(req, res)=>{
       res.send(showSize);
       console.log(showSize); 
     })
+    app.post("/add-color", async (req, res) => {
+      const color = req.body;
+      const getColor = await Colors.insertOne(color);
+      res.json(getColor);
+    });   
+    app.get("/getColor", async(req, res)=>{
+      const cursor = Colors.find({});
+      const showColor = await cursor.toArray();
+      res.send(showColor);
+      console.log(showColor); 
+    })
+
+
+
 // finish the work of admin panel catagories and categories
 
   } finally {
