@@ -29,7 +29,7 @@ async function run() {
     const CityApi= database.collection("All-City");
     const Orders= database.collection("all-Orders");
     const Colors= database.collection("Colors");
-
+    const Users= database.collection("Users");
     // --------------Products API------------------
 
     app.post("/add-product", async (req, res) => {
@@ -76,10 +76,10 @@ async function run() {
     });
 
     app.get("/orders", async (req, res) => {
-      const email = req.body.email;
-      let query= {};
+      let query= {}
+      const email=req.query.email;
       if(email){
-        query={email:email}
+      query= {email: email}
       }
       const cursor = Orders.find(query);
       const getOrders = await cursor.toArray();
