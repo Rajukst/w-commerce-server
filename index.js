@@ -105,7 +105,7 @@ async function run() {
     });
 // --------------Order API finish------------------
 // Creating User ----------------
-app.post("/users", async (req, res) => {
+app.post("/user", async (req, res) => {
 const addUser = req.body;
 const users = await Users.insertOne(addUser);
 res.json(users);
