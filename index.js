@@ -45,6 +45,7 @@ async function run() {
       res.send(getProductList);
       console.log(getProductList);
     });
+    // find single productId
     app.get("/products/:id", async(req, res)=>{
       const productId= req.params.id;
       const query = {_id: new ObjectId(productId)};
@@ -52,6 +53,22 @@ async function run() {
       console.log("getting a single product", getSingleProduct);
       res.send(getSingleProduct);
     })
+    // update single product
+    app.get("/products/:id", async(req, res)=>{
+      const productId= req.params.id;
+      const query = {_id: new ObjectId(productId)};
+      const getUpdateProduct= await ProductList.findOne(query);
+      console.log("getting a single product", getUpdateProduct);
+      res.send(getUpdateProduct);
+    })
+    // delete product from manage products
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await ProductList.deleteOne(query);
+      console.log("deleting product", result);
+      res.json(result);
+    });
    // **************Product API Finished*************************
 
 
@@ -86,10 +103,13 @@ async function run() {
       res.send(getOrders);
       console.log(getOrders);
     });
-
-
 // --------------Order API finish------------------
-
+// Creating User ----------------
+app.post("/users", async (req, res) => {
+const addUser = req.body;
+const users = await Users.insertOne(addUser);
+res.json(users);
+})
 // --------------Blog API------------------
 app.post("/add-blog", async(req, res)=>{
   const addBlog= req.body;
@@ -108,16 +128,6 @@ app.get("/blogs", async(req, res)=>{
       const getblog = await BlogList.findOne(query);
       console.log("getting single Blogs", getblog);
       res.send(getblog);
-    });
-
-
-    // delete product from manage products
-    app.delete("/products/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await ProductList.deleteOne(query);
-      console.log("deleting product", result);
-      res.json(result);
     });
 // comment section
 app.post("/add-comment", async(req, res)=>{
